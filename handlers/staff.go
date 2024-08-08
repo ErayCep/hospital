@@ -213,3 +213,131 @@ func (h *Handlers) DeletePolyclinicStaffHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{})
 }
+
+func (h *Handlers) GetStaffHandler(c *gin.Context) {
+	id, err := helpers.ReadIDFromRequest("id")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "failed to read id from request body",
+		})
+
+		return
+	}
+
+	var staff models.Staff
+	staff, err = h.Storage.GetStaffWithID(uint(id))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "failed to get staff",
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, staff)
+}
+
+func (h *Handlers) GetStaffsHandler(c *gin.Context) {
+	var staffs []models.Staff
+	staffs, err := h.Storage.GetStaffs()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "failed to get staffs",
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, staffs)
+}
+
+func (h *Handlers) ChangePasswordHandler(c *gin.Context) {
+	id, err := helpers.ReadIDFromRequest("id")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "failed to read id from request body",
+		})
+
+		return
+	}
+
+	staff, err := h.Storage.GetStaffWithID(uint(id))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "failed to find staff",
+		})
+	}
+
+	var body struct {
+		OldPassword      string
+		NewPassword      string
+		NewPasswordAgain string
+	}
+
+	if c.Bind(&body) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "failed to read body",
+		})
+
+		return
+	}
+
+	if body.NewPassword != body.NewPasswordAgain {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "new passwords don't match",
+		})
+
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(staff.Password), []byte(body.OldPassword))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "wrong password",
+		})
+
+		return
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(body.NewPassword), 10)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to hash password",
+		})
+
+		return
+	}
+
+	result := h.Storage.DB.Model(&staff).Where("id = ?", id).Update("password", hash)
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "failed to update password",
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{})
+}
+
+func (h *Handlers) DeleteStaffHandler(c *gin.Context) {
+	id, err := helpers.ReadIDFromRequest("id")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "failed to read id from request body",
+		})
+
+		return
+	}
+
+	err = h.Storage.DeleteStaff(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "failed to delete staff",
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{})
+}

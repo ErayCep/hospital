@@ -74,5 +74,10 @@ func main() {
 	r.POST("/polyclinic/:id/staff", middleware.RequirePrivileged, handler.PostPolyclinicStaffHandler)
 	r.DELETE("/polyclinic/:id/staff/:s_id", middleware.RequirePrivileged, handler.DeletePolyclinicStaffHandler)
 
+	r.GET("/staff", handler.GetStaffsHandler)
+	r.GET("/staff/:id", handler.GetStaffHandler)
+	r.DELETE("/staff/:id", middleware.RequirePrivileged, handler.DeleteStaffHandler)
+	r.POST("/staff/:id/password", middleware.ChechStaffID, handler.ChangePasswordHandler)
+
 	r.Run("0.0.0.0:8080")
 }

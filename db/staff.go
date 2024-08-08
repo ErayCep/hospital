@@ -37,14 +37,15 @@ func (s *Storage) GetStaffWithEmail(Staff *models.Staff, email string) error {
 	return nil
 }
 
-func (s *Storage) GetStaffWithID(Staff *models.Staff, id uint) error {
-	result := s.DB.First(&Staff, "id = ?", id)
+func (s *Storage) GetStaffWithID(id uint) (models.Staff, error) {
+	var staff models.Staff
+	result := s.DB.First(&staff, "id = ?", id)
 	if result.Error != nil {
 		log.Printf("[ERROR] Failed to get staff: %v", result.Error)
-		return result.Error
+		return models.Staff{}, result.Error
 	}
 
-	return nil
+	return staff, nil
 }
 
 func GetStaffWithID(Staff *models.Staff, id float64) error {
@@ -55,6 +56,17 @@ func GetStaffWithID(Staff *models.Staff, id float64) error {
 	}
 
 	return nil
+}
+
+func (s *Storage) GetStaffs() ([]models.Staff, error) {
+	var staffs []models.Staff
+	result := s.DB.Find(&staffs)
+	if result.Error != nil {
+		log.Printf("[ERROR] Failed to get staffs: %v", result.Error)
+		return []models.Staff{}, nil
+	}
+
+	return staffs, nil
 }
 
 func (s *Storage) GetPolyclinicStaff(polyclinic_id int) ([]models.Staff, error) {
@@ -71,6 +83,17 @@ func (s *Storage) GetPolyclinicStaff(polyclinic_id int) ([]models.Staff, error) 
 func (s *Storage) DeletePolyclinicStaff(polyclinic_id, staff_id int) error {
 	var staff models.Staff
 	result := s.DB.Delete(&staff).Where("id = ? AND polyclinic_id = ?", staff_id, polyclinic_id)
+	if result.Error != nil {
+		log.Printf("[ERROR] Failed to delete staff: %v", result.Error)
+		return result.Error
+	}
+
+	return nil
+}
+
+func (s *Storage) DeleteStaff(id int) error {
+	var staff models.Staff
+	result := s.DB.Delete(&staff).Where("id = ?", id)
 	if result.Error != nil {
 		log.Printf("[ERROR] Failed to delete staff: %v", result.Error)
 		return result.Error
