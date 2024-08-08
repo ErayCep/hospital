@@ -1,0 +1,3 @@
+insert into hastane(name, email, phone, city, county, address) values('hastane1', "hastane1@email.com", "Istanbul", "Atasehir", "Adres");
+insert into yetkili(first_name, last_name, tc_no, email, phone, password) values('isim1', 'soyisim1', '11111111111', 'isim1@email.com', '5555555555', '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08');
+psql postgresql://wallog:Hospital111@localhost:6543/hospital
