@@ -87,7 +87,7 @@ func (h *Handlers) Login(c *gin.Context) {
 	}
 
 	// Sign and get the complete encoded token as a string using the secret
-	tokenString, err := helpers.GenerateJWTWithID(staff.ID)
+	tokenString, err := helpers.GenerateJWT(staff.ID, staff.Privileged)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

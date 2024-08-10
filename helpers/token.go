@@ -25,9 +25,16 @@ func GenerateJWTWithID(id uint) (string, error) {
 }
 
 func GenerateJWT(id uint, privileged bool) (string, error) {
+	var privileged_int int
+
+	if privileged {
+		privileged_int = 1
+	} else {
+		privileged_int = 0
+	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": id,
-		"prv": privileged,
+		"prv": privileged_int,
 		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
 	})
 
